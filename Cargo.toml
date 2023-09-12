@@ -1,0 +1,15 @@
+[package]
+name = "open_ai"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { features = ["full"]}
+reqwest = { features=["json"]}
+serde = {features =["derive"]}
+serde_json = { }
+
+[dev-dependencies]
+pretty_assertions = "1"
