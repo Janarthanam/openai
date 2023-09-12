@@ -1,4 +1,4 @@
-use open_ai::{self, CompletionRequest, Message};
+use open_ai::{self, CompletionRequest, Message, complete};
 
 #[tokio::test]
 async fn ask_llm() {
@@ -17,4 +17,11 @@ async fn ask_llm() {
     
     let completion = open_ai::ask_llm(&request).await.unwrap();
     println!("{:?}", completion);
+}
+
+#[tokio::test]
+async fn complete() {
+    let request = complete!("AI assistant", "Summarize gpt", "gpt-4");
+    let completion = open_ai::ask_llm(&request).await.unwrap();
+    println!("{:#?}", completion)
 }

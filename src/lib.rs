@@ -113,6 +113,27 @@ pub async fn ask_llm(completion: &CompletionRequest) -> Result<Completion,Error>
     }
 }
 
+#[macro_export]
+macro_rules! complete {
+    ($system:expr, $prompt:expr, $model:expr) => {
+        {
+            let completion = CompletionRequest {
+                model : $model,
+                messages: vec![Message{
+                    role: String::from("system"),
+                    content: String::from($system)
+                },
+                Message{
+                    role: String::from("user"),
+                    content: String::from($prompt)
+                }],
+                ..Default::default()
+            };
+            completion
+        }
+    }; 
+} 
+
 #[cfg(test)]
 mod tests {
     use super::*;
