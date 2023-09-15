@@ -1,7 +1,9 @@
-use open_ai::{self, CompletionRequest, Message, complete};
+use open_ai::complete;
+use open_ai::open_ai::ask_llm;
+use open_ai::open_ai::{CompletionRequest, Message};
 
 #[tokio::test]
-async fn ask_llm() {
+async fn test_ask_llm() {
     let request = CompletionRequest {
         model : "gpt-4",
         messages: vec![Message{
@@ -15,13 +17,13 @@ async fn ask_llm() {
         ..Default::default()
     };
     
-    let completion = open_ai::ask_llm(&request).await.unwrap();
+    let completion = ask_llm(&request).await.unwrap();
     println!("{:?}", completion);
 }
 
 #[tokio::test]
-async fn complete() {
+async fn test_complete() {
     let request = complete!("AI assistant", "Summarize gpt", "gpt-4");
-    let completion = open_ai::ask_llm(&request).await.unwrap();
+    let completion = ask_llm(&request).await.unwrap();
     println!("{:#?}", completion)
 }
