@@ -1,6 +1,6 @@
-use open_ai::llms::llms::Gpt;
-use open_ai::llms::llms::LangModel;
-use open_ai::llms::llms::Response;
+use open_ai::llms::Gpt;
+use open_ai::llms::LangModel;
+use open_ai::llms::Response;
 use open_ai::llms::open_ai::ask_llm;
 use open_ai::llms::open_ai::{CompletionRequest, Message};
 use open_ai::complete;
@@ -34,7 +34,7 @@ async fn test_macro() {
 #[tokio::test]
 async fn test_gpt_complete() {
     let gpt = Gpt {
-        prompt_template: Option::None,
+        prompt_template: None,
     };
     
     let result = gpt.complete(String::from("Summarize this great library")).await;
