@@ -106,7 +106,7 @@ pub async fn ask_llm(completion: &CompletionRequest) -> Result<Completion, Error
             StatusCode::OK => response.json::<Completion>().await,
             //todo: how do we handle more than one type of error in rust
             // without introducing a new enum!!?
-            _ => panic!("{:#?}", response.text().await?),
+           _ => panic!("{:#?}", response.text().await?),
         },
         Err(err) => Err(err),
     }

@@ -10,6 +10,8 @@ tokio = { features = ["full"]}
 reqwest = { features=["json"]}
 serde = {features =["derive"]}
 serde_json = { }
+thiserror = {}
+async-trait = {}
 
 [dev-dependencies]
 pretty_assertions = "1"
