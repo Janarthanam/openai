@@ -11,28 +11,28 @@ pub enum Error {
     #[error("Reqwest error occurred")]
     RequestError(reqwest::Error),
     #[error("LLM error occurred")]
-    LLMError(String)
+    LLMError(String),
 }
 
 //todo: most llms return multiple types.
 // currently only string type is supported.
 #[derive(Debug)]
 pub enum Response {
-    TEXT {res: String},
+    TEXT { res: String },
 }
 
 #[async_trait]
 pub trait LangModel {
-    async fn complete(&self, prompt: String) -> Result<Response,Error>;
+    async fn complete(&self, prompt: String) -> Result<Response, Error>;
 }
 
 pub struct Gpt {
-    pub prompt_template: Option<String>
+    pub prompt_template: Option<String>,
 }
 
 #[async_trait]
 impl LangModel for Gpt {
-    async fn complete(&self, prompt: String) -> Result<Response,Error> {
+    async fn complete(&self, prompt: String) -> Result<Response, Error> {
         let eventual_prompt = match &self.prompt_template {
             Some(p) => p.to_owned() + &prompt,
             None => prompt
@@ -42,8 +42,8 @@ impl LangModel for Gpt {
         let response = ask_llm(&request).await;
 
         match response {
-            Ok(completion) => Ok(Response::TEXT { res: completion.choices[0].message.content.clone()}),
-            Err(err) => Err(Error::RequestError(err))
+            Ok(completion) => Ok(Response::TEXT { res: completion.choices[0].message.content.clone() }),
+            Err(err) => Err(err)
         }
     }
 }

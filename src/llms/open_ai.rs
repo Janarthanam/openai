@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 use std::env;
 
-use reqwest::{self, Error, StatusCode};
+use reqwest::{self, StatusCode};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use crate::llms::Error::{LLMError, RequestError};
 
-///structs for json response and requets
+///structs for json response and requests
 const CHAT_COMPLETION_URL: &str = "https://api.openai.com/v1/chat/completions";
 
 ///open ai function
@@ -86,13 +87,16 @@ pub struct Completion {
 }
 
 ///ask llm with a prompt and let it respond
-pub async fn ask_llm(completion: &CompletionRequest) -> Result<Completion, Error> {
+pub async fn ask_llm<'a>(completion: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
     let secret = match env::var("OPENAI_API_KEY") {
         Ok(res) => res,
-        Err(_) => panic!("No OpenAI api key"),
+        Err(_) => return Err(LLMError(String::from("No OpenAI api key"))),
     };
 
-    let client = reqwest::Client::builder().build()?;
+    let client = match  reqwest::Client::builder().build(){
+        Ok(client) => client,
+        Err(e) => return Err(RequestError(e))
+    };
 
     let res = client
         .post(CHAT_COMPLETION_URL)
@@ -103,12 +107,18 @@ pub async fn ask_llm(completion: &CompletionRequest) -> Result<Completion, Error
 
     match res {
         Ok(response) => match response.status() {
-            StatusCode::OK => response.json::<Completion>().await,
-            //todo: how do we handle more than one type of error in rust
-            // without introducing a new enum!!?
-           _ => panic!("{:#?}", response.text().await?),
+            StatusCode::OK =>  match response.json::<Completion>().await {
+                Ok(ok) => Ok(ok),
+                Err(e) => Err(RequestError(e))
+            },
+            _ => {
+                match response.text().await {
+                    Ok(body) => return Err(LLMError(body)),
+                    Err(e) =>  Err(RequestError(e))
+                }
+            },
         },
-        Err(err) => Err(err),
+        Err(err) => Err(RequestError(err)),
     }
 }
 
