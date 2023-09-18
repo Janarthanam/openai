@@ -87,7 +87,7 @@ pub struct Completion {
 }
 
 ///ask llm with a prompt and let it respond
-pub async fn ask_llm(completion: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
+pub async fn chat_completion(completion: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
     let secret = match env::var("OPENAI_API_KEY") {
         Ok(res) => res,
         Err(_) => return Err(LLMError(String::from("No OpenAI api key"))),

@@ -1,7 +1,7 @@
 use open_ai::llms::Gpt;
 use open_ai::llms::LangModel;
 use open_ai::llms::Response;
-use open_ai::llms::open_ai::ask_llm;
+use open_ai::llms::open_ai::chat_completion;
 use open_ai::llms::open_ai::{CompletionRequest, Message};
 use open_ai::complete;
 
@@ -20,14 +20,14 @@ async fn test_ask_llm() {
         ..Default::default()
     };
     
-    let completion = ask_llm(&request).await.unwrap();
+    let completion = chat_completion(&request).await.unwrap();
     println!("{:?}", completion);
 }
 
 #[tokio::test]
 async fn test_macro() {
     let request = complete!("AI assistant", "Summarize gpt", "gpt-4");
-    let completion = ask_llm(&request).await.unwrap();
+    let completion = chat_completion(&request).await.unwrap();
     println!("{:#?}", completion)
 }
 

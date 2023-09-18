@@ -2,7 +2,7 @@ pub mod open_ai;
 
 use async_trait::async_trait;
 use crate::complete;
-use crate::llms::open_ai::ask_llm;
+use crate::llms::open_ai::chat_completion;
 use crate::llms::open_ai::CompletionRequest;
 use crate::llms::open_ai::Message;
 
@@ -39,7 +39,7 @@ impl LangModel for Gpt {
         };
 
         let request = complete!("Useful AI assistant, factually correct.", eventual_prompt, "gpt-4");
-        let response = ask_llm(&request).await;
+        let response = chat_completion(&request).await;
 
         match response {
             Ok(completion) => Ok(Response::TEXT { res: completion.choices[0].message.content.clone() }),
