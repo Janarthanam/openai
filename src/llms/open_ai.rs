@@ -87,7 +87,7 @@ pub struct Completion {
 }
 
 ///ask llm with a prompt and let it respond
-pub async fn ask_llm<'a>(completion: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
+pub async fn ask_llm(completion: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
     let secret = match env::var("OPENAI_API_KEY") {
         Ok(res) => res,
         Err(_) => return Err(LLMError(String::from("No OpenAI api key"))),
@@ -106,18 +106,20 @@ pub async fn ask_llm<'a>(completion: &CompletionRequest) -> Result<Completion,cr
         .await;
 
     match res {
-        Ok(response) => match response.status() {
-            StatusCode::OK =>  match response.json::<Completion>().await {
-                Ok(ok) => Ok(ok),
-                Err(e) => Err(RequestError(e))
+        Ok(response) =>
+            match response.status() {
+                StatusCode::OK =>
+                    match response.json::<Completion>().await {
+                        Ok(ok) => Ok(ok),
+                        Err(e) => Err(RequestError(e))
+                },
+                _ => {
+                    match response.text().await {
+                        Ok(body) => return Err(LLMError(body)),
+                        Err(e) =>  Err(RequestError(e))
+                    }
+                },
             },
-            _ => {
-                match response.text().await {
-                    Ok(body) => return Err(LLMError(body)),
-                    Err(e) =>  Err(RequestError(e))
-                }
-            },
-        },
         Err(err) => Err(RequestError(err)),
     }
 }
