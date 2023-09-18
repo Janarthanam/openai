@@ -27,22 +27,17 @@ pub trait LangModel {
 }
 
 pub struct Gpt {
-    pub prompt_template: Option<String>,
+    pub system_prompt: String
 }
 
 #[async_trait]
 impl LangModel for Gpt {
     async fn complete(&self, prompt: String) -> Result<Response, Error> {
-        let eventual_prompt = match &self.prompt_template {
-            Some(p) => p.to_owned() + &prompt,
-            None => prompt
-        };
-
-        let request = complete!("Useful AI assistant, factually correct.", eventual_prompt, "gpt-4");
+        let request = complete!(&self.system_prompt, prompt, "gpt-4");
         let response = chat_completion(&request).await;
 
         match response {
-            Ok(completion) => Ok(Response::TEXT { res: completion.choices[0].message.content.clone() }),
+            Ok(completion) => Ok(Response::TEXT {res: completion.choices[0].message.content.clone()}),
             Err(err) => Err(err)
         }
     }

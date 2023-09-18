@@ -34,7 +34,7 @@ async fn test_macro() {
 #[tokio::test]
 async fn test_gpt_complete() {
     let gpt = Gpt {
-        prompt_template: None,
+        system_prompt: String::from("Answer in a consistent style.")
     };
     
     let result = gpt.complete(String::from("Summarize this great library")).await;
