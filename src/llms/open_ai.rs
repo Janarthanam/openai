@@ -4,7 +4,7 @@ use std::env;
 use reqwest::{self, StatusCode};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use crate::llms::Error::{LLMError, RequestError};
+use crate::llms::Error::LLMError;
 
 ///structs for json response and requests
 const CHAT_COMPLETION_URL: &str = "https://api.openai.com/v1/chat/completions";
@@ -87,40 +87,24 @@ pub struct Completion {
 }
 
 ///ask llm with a prompt and let it respond
-pub async fn chat_completion(completion: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
+pub async fn chat_completion(req: &CompletionRequest) -> Result<Completion,crate::llms::Error> {
     let secret = match env::var("OPENAI_API_KEY") {
         Ok(res) => res,
         Err(_) => return Err(LLMError(String::from("No OpenAI api key"))),
     };
 
-    let client = match  reqwest::Client::builder().build(){
-        Ok(client) => client,
-        Err(e) => return Err(RequestError(e))
-    };
+    let client = reqwest::Client::builder().build()?;
 
     let res = client
         .post(CHAT_COMPLETION_URL)
         .bearer_auth(secret)
-        .json(&completion)
+        .json(&req)
         .send()
-        .await;
+        .await?;
 
-    match res {
-        Ok(response) =>
-            match response.status() {
-                StatusCode::OK =>
-                    match response.json::<Completion>().await {
-                        Ok(ok) => Ok(ok),
-                        Err(e) => Err(RequestError(e))
-                },
-                _ => {
-                    match response.text().await {
-                        Ok(body) => return Err(LLMError(body)),
-                        Err(e) =>  Err(RequestError(e))
-                    }
-                },
-            },
-        Err(err) => Err(RequestError(err)),
+    match res.status() {
+        StatusCode::OK => Ok(res.json::<Completion>().await?),
+        _ => Err(LLMError(res.text().await?)),
     }
 }
 

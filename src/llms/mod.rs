@@ -9,7 +9,7 @@ use crate::llms::open_ai::Message;
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Reqwest error occurred")]
-    RequestError(reqwest::Error),
+    RequestError(#[from] reqwest::Error),
     #[error("LLM error occurred")]
     LLMError(String),
 }
@@ -37,7 +37,8 @@ impl LangModel for Gpt {
         let response = chat_completion(&request).await;
 
         match response {
-            Ok(completion) => Ok(Response::TEXT {res: completion.choices[0].message.content.clone()}),
+            Ok(completion) => Ok(Response::TEXT {res:
+                            completion.choices[0].message.content.clone()}),
             Err(err) => Err(err)
         }
     }
